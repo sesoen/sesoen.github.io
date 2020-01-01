@@ -1,0 +1,144 @@
+--Introductory Problems
+--1. Which shippers do we use? 
+SELECT *
+FROM Shippers;
+
+--2. Certain fields from Categories
+SELECT CategoryName, Description
+FROM Categories;
+
+--3 & 4. US Sales Reps
+SELECT [LastName], [FirstName], [HireDate]
+FROM [dbo].[Employees]
+WHERE [Title]='Sales Representative' 
+AND [Country]='USA';
+
+--5. Orders placed by EmployeeID #5
+ SELECT [OrderID]
+FROM [dbo].[Orders]
+WHERE [EmployeeID]=5;
+
+--6. Suppliers and our contact's title
+SELECT [SupplierID], [ContactName], [ContactTitle] 
+FROM [dbo].[Suppliers]
+WHERE [ContactTitle] <> 'Marketing Manager';
+
+--7. Products with "queso" in the ProductName
+SELECT [ProductID], [ProductName]
+FROM [dbo].[Products]
+WHERE [ProductName] LIKE '%queso%';
+
+--8. Orders shipping to France or Belguim
+SELECT [OrderID], [CustomerID], [ShipCountry]
+FROM [dbo].[Orders] 
+WHERE [ShipCountry] = 'France' OR [ShipCountry] = 'Belgium';
+
+--9. Orders shipping to any Latin American country
+SELECT [OrderID], [CustomerID], [ShipCountry]
+FROM [dbo].[Orders] 
+WHERE [ShipCountry] IN ('Brazil', 'Mexico', 'Argentina', 'Venezuela');	
+
+--10. Employees in order of age
+SELECT FirstName, LastName, Title, BirthDate
+FROM [dbo].[Employees]
+ORDER BY BirthDate;
+
+--12. Employees full name
+SELECT FirstName, LastName, CONCAT(FirstName, ' ', LastName) AS FullName
+FROM Employees;
+
+--13. Order details per line item
+SELECT OrderID, ProductID, UnitPrice, Quantity, (UnitPrice*Quantity) AS TotalPrice
+FROM OrderDetails
+ORDER BY OrderID, ProductID;
+
+--14. How many customers do we have?
+SELECT COUNT(DISTINCT(CustomerID))
+FROM Customers;
+
+--15. When was the first order placed?
+SELECT MIN([OrderDate])
+FROM [dbo].[Orders]
+
+--16. Countries where there are customers
+SELECT DISTINCT([Country])
+FROM [dbo].[Customers]
+
+--17. Contact titles for customers
+SELECT DISTINCT(ContactTitle), COUNT(ContactTitle) AS TotalContactTitle
+FROM [dbo].[Customers]
+GROUP BY ContactTitle
+ORDER BY TotalContactTitle DESC;
+
+--18. Products with associated supplier names
+SELECT p.ProductID, p.ProductName, s.CompanyName
+FROM [dbo].[Products] AS p
+	JOIN [dbo].[Suppliers] AS s
+	ON p.SupplierID=s.SupplierID
+ORDER BY p.ProductID
+
+--19. Orders and the shipper that was used
+SELECT OrderID, CONVERT(date, OrderDate) ,CompanyName
+FROM Orders AS o
+	JOIN Shippers AS s
+	ON o.ShipVia=s.ShipperID
+WHERE OrderID < 10270;
+
+--------------------------------------------------------------------------
+--Intermediate Problems
+--20. Categories, and the total products in each category
+SELECT CategoryName, COUNT(DISTINCT ProductID) AS TotalProducts
+FROM [dbo].[Categories] AS c
+JOIN [dbo].[Products] AS p
+ON c.[CategoryID] = p.CategoryID
+GROUP BY CategoryName
+
+--21. Total customers per country/city
+SELECT Country, City, COUNT(DISTINCT CustomerID) AS TotalCustomers
+FROM [dbo].[Customers]
+GROUP BY Country, City
+
+--22. Products that need reordering
+SELECT ProductID, ProductName, UnitsInStock, ReorderLevel
+FROM Products AS p
+WHERE UnitsInStock <= ReorderLevel;
+
+--23. Products that need reordering, cont.
+SELECT ProductID, ProductName, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued
+FROM Products
+WHERE (UnitsInStock+UnitsOnOrder)<=ReorderLevel AND Discontinued=0
+ORDER BY ProductID; 
+
+--24. Customer list by region
+SELECT CustomerID, CompanyName, Region
+FROM Customers
+ORDER BY 
+	CASE WHEN Region IS NULL 
+	THEN 1
+	ELSE 0
+END, Region, CustomerID;
+
+--25. Three ship countries with highest average freight overall, in descending order by freight. 
+SELECT TOP 3 ShipCountry, AVG(Freight) AS AverageFreight
+FROM Orders
+GROUP BY ShipCountry
+ORDER BY AverageFreight DESC;
+
+--26. #25, but only for orders from 2015
+SELECT TOP 3 ShipCountry, AVG(Freight) AS AverageFreight
+FROM Orders
+WHERE YEAR(OrderDate)=2015
+GROUP BY ShipCountry
+ORDER BY AverageFreight DESC;
+
+--28. #25 but only for orders from the past 12 months
+SELECT TOP 3 ShipCountry, AVG(Freight) AS AverageFreight
+FROM Orders
+WHERE OrderDate BETWEEN
+	(SELECT MAX(OrderDate)-365
+	FROM Orders)
+	AND 
+	(SELECT MAX(OrderDate)
+	FROM Orders)
+GROUP BY ShipCountry
+ORDER BY AverageFreight DESC;
