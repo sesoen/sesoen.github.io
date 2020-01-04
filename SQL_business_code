@@ -195,7 +195,7 @@ GROUP BY c.CustomerID, CompanyName
 HAVING SUM(UnitPrice*Quantity) >= 15000
 ORDER BY TotalOrderAmount DESC
 
---33. Customers w/at least $15,000 in total orders for 2016 and their total order amount after discounts
+--34. Customers w/at least $15,000 in total orders for 2016 and their total order amount after discounts
 SELECT c.CustomerID, CompanyName, SUM(UnitPrice*Quantity) AS TotalsWithoutDiscount, 
 	(SUM(UnitPrice*Quantity) - SUM(Discount*UnitPrice*Quantity)) AS TotalsWithDiscount
 FROM Customers AS c
@@ -207,3 +207,12 @@ WHERE YEAR(OrderDate) = 2016
 GROUP BY c.CustomerID, CompanyName
 HAVING SUM(UnitPrice*Quantity) >= 15000
 ORDER BY TotalsWithDiscount DESC
+
+--35. Orders placed on the last day of the month
+SELECT EmployeeID, OrderID, OrderDate
+FROM Orders
+WHERE OrderDate IN (
+	SELECT EOMONTH(OrderDate)
+	FROM Orders
+	)
+ORDER BY EmployeeID, OrderID
