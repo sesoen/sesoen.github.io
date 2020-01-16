@@ -239,5 +239,20 @@ WHERE od1.ProductID <>od2.ProductID
 	AND od1.Quantity >60
 GROUP BY od1.OrderID
 
+--39. Order details of potential accidental double-entry
+SELECT OrderID, ProductID, UnitPrice, Quantity, Discount
+FROM OrderDetails
+WHERE OrderID IN
+	(SELECT od1.OrderID
+	FROM [dbo].[OrderDetails] as od1
+		JOIN OrderDetails as od2
+		ON od1.OrderID=od2.OrderID
+	WHERE od1.ProductID <>od2.ProductID 
+		AND od1.Quantity=od2.Quantity
+		AND od1.OrderID=od2.OrderID
+		AND od1.Quantity >60
+	GROUP BY od1.OrderID, od1.ProductID, od1.UnitPrice, od1.Quantity, od1.Discount)
+ORDER BY OrderID, Quantity
+
 --**This designation indicates that I looked up the solution query in the answer key. I was not able to locate an answer via Google/StackOverflow/etc.
 --However, now knowing the MS SQL Server code for this type of query, my own GitHub is now a reference in addition to StackOverflow solutions!
