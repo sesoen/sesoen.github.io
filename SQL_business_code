@@ -254,5 +254,20 @@ WHERE OrderID IN
 	GROUP BY od1.OrderID, od1.ProductID, od1.UnitPrice, od1.Quantity, od1.Discount)
 ORDER BY OrderID, Quantity
 
+--41. Late orders
+SELECT OrderID, OrderDate, RequiredDate, ShippedDate
+FROM Orders
+WHERE RequiredDate <= ShippedDate
+
+--42. 
+SELECT e.EmployeeID, LastName, COUNT(OrderID) AS TotalLateOrders
+FROM Orders AS o
+	JOIN Employees AS e
+	ON o.EmployeeID=e.EmployeeID
+WHERE RequiredDate <= ShippedDate
+GROUP BY e.EmployeeID, LastName
+ORDER BY COUNT(OrderID) DESC
+
+
 --**This designation indicates that I looked up the solution query in the answer key. I was not able to locate an answer via Google/StackOverflow/etc.
 --However, now knowing the MS SQL Server code for this type of query, my own GitHub is now a reference in addition to StackOverflow solutions!
