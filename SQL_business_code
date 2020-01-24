@@ -259,7 +259,7 @@ SELECT OrderID, OrderDate, RequiredDate, ShippedDate
 FROM Orders
 WHERE RequiredDate <= ShippedDate
 
---42. 
+--42. Number of late orders per employee
 SELECT e.EmployeeID, LastName, COUNT(OrderID) AS TotalLateOrders
 FROM Orders AS o
 	JOIN Employees AS e
@@ -267,6 +267,22 @@ FROM Orders AS o
 WHERE RequiredDate <= ShippedDate
 GROUP BY e.EmployeeID, LastName
 ORDER BY COUNT(OrderID) DESC
+
+--43. All orders vs. Late orders per employee
+WITH late AS (
+	SELECT e.EmployeeID, LastName, COUNT(OrderID) AS TotalLateOrders
+	FROM Orders AS o
+	JOIN Employees AS e
+	ON o.EmployeeID=e.EmployeeID
+	WHERE RequiredDate <= ShippedDate
+	GROUP BY e.EmployeeID, LastName
+	)
+SELECT Orders.EmployeeID, LastName, COUNT(OrderID) AS AllOrders, TotalLateOrders
+FROM Orders 
+	JOIN late
+	ON Orders.EmployeeID=late.EmployeeID
+GROUP BY Orders.EmployeeID, LastName, TotalLateOrders
+ORDER BY EmployeeID;
 
 
 --**This designation indicates that I looked up the solution query in the answer key. I was not able to locate an answer via Google/StackOverflow/etc.
