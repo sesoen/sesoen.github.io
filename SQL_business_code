@@ -284,6 +284,43 @@ FROM Orders
 GROUP BY Orders.EmployeeID, LastName, TotalLateOrders
 ORDER BY EmployeeID;
 
+--Two #44's: 
+--44. Show all employees in result:: (mine only) produces NULL in both LastName and LateOrders
+WITH late AS (
+	SELECT e.EmployeeID, LastName, COUNT(OrderID) AS TotalLateOrders
+	FROM Orders AS o
+	JOIN Employees AS e
+	ON o.EmployeeID=e.EmployeeID
+	WHERE RequiredDate <= ShippedDate
+	GROUP BY e.EmployeeID, LastName
+	)
+SELECT Orders.EmployeeID, LastName, COUNT(OrderID) AS AllOrders, TotalLateOrders
+FROM Orders 
+	LEFT JOIN late
+	ON Orders.EmployeeID=late.EmployeeID
+GROUP BY Orders.EmployeeID, LastName, TotalLateOrders
+ORDER BY EmployeeID;
+
+--44.Show all employees in result: using Vailik's suggetions from the previous challenge
+WITH late AS (
+	SELECT EmployeeID, COUNT(*) AS LateOrders
+	FROM Orders
+	WHERE RequiredDate <= ShippedDate
+	GROUP BY EmployeeID
+	),
+total AS (
+	SELECT EmployeeID, COUNT(*) AS AllOrders
+	FROM Orders
+	GROUP BY EmployeeID
+	)
+SELECT e.EmployeeID, e.LastName, LateOrders, AllOrders
+FROM Employees AS e
+	LEFT JOIN late
+	ON e.EmployeeID=late.EmployeeID
+	JOIN total
+	ON e.EmployeeID=total.EmployeeID
+ORDER BY e.EmployeeID
+
 
 --**This designation indicates that I looked up the solution query in the answer key. I was not able to locate an answer via Google/StackOverflow/etc.
 --However, now knowing the MS SQL Server code for this type of query, my own GitHub is now a reference in addition to StackOverflow solutions!
