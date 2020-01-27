@@ -364,6 +364,31 @@ FROM Employees AS e
 	ON e.EmployeeID=total.EmployeeID
 ORDER BY e.EmployeeID;
 
+--47. Percent Late Orders - neater percentage**
+WITH late AS (
+	SELECT EmployeeID, COUNT(*) AS LateOrders
+	FROM Orders
+	WHERE RequiredDate <= ShippedDate
+	GROUP BY EmployeeID
+	),
+total AS (
+	SELECT EmployeeID, COUNT(*) AS AllOrders
+	FROM Orders
+	GROUP BY EmployeeID
+	)
+SELECT e.EmployeeID, e.LastName, AllOrders,
+	ISNULL(LateOrders,0) AS LateOrders,
+	CONVERT(
+		DEC(2,2),
+		(ISNULL(LateOrders,0)*1.00)/AllOrders) AS PercentLateOrders
+FROM Employees AS e
+	LEFT JOIN late
+	ON e.EmployeeID=late.EmployeeID
+	JOIN total
+	ON e.EmployeeID=total.EmployeeID
+ORDER BY e.EmployeeID;
+
+
 
 --**This designation indicates that I looked up the solution query in the answer key. I was not able to locate an answer via Google/StackOverflow/etc.
 --However, now knowing the MS SQL Server code for this type of query, my own GitHub is now a reference in addition to StackOverflow solutions!
