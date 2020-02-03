@@ -388,6 +388,22 @@ FROM Employees AS e
 	ON e.EmployeeID=total.EmployeeID
 ORDER BY e.EmployeeID;
 
+--48. Customer grouping for sales campaign purposes
+SELECT c.CustomerID, CompanyName, SUM(UnitPrice*Quantity) AS TotalOrderAmount, 
+(CASE 
+	WHEN SUM(UnitPrice*Quantity) < 1000 THEN 'Low'
+	WHEN SUM(UnitPrice*Quantity) BETWEEN 1000 AND 5000 THEN 'Medium'
+	WHEN SUM(UnitPrice*Quantity) BETWEEN 5001 AND 10000 THEN 'High'
+	ELSE 'Very High'
+	END) AS CustomerGroup
+FROM Customers AS c
+	JOIN Orders AS o
+		ON o.CustomerID=c.CustomerID
+	JOIN OrderDetails AS od
+		ON od.OrderID=o.OrderID
+WHERE YEAR(OrderDate) = 2016
+GROUP BY c.CustomerID, CompanyName
+
 
 
 --**This designation indicates that I looked up the solution query in the answer key. I was not able to locate an answer via Google/StackOverflow/etc.
