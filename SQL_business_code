@@ -404,7 +404,24 @@ FROM Customers AS c
 WHERE YEAR(OrderDate) = 2016
 GROUP BY c.CustomerID, CompanyName
 
+--52. Countries with suppliers or customers, combined
+SELECT Country
+FROM Suppliers
+UNION
+SELECT Country
+FROM Customers
 
+--53. Countries with suppliers or customers
+WITH Suppliercte AS (
+	SELECT DISTINCT(Country)
+	FROM Suppliers),
+Customercte AS(
+	SELECT DISTINCT(Country)
+	FROM Customers)
+SELECT s.Country AS SupplierCountry, c.Country AS CustomerCountry
+FROM Suppliercte AS s
+	FULL JOIN Customercte AS c
+	ON s.Country=c.Country
 
 --**This designation indicates that I looked up the solution query in the answer key. I was not able to locate an answer via Google/StackOverflow/etc.
 --However, now knowing the MS SQL Server code for this type of query, my own GitHub is now a reference in addition to StackOverflow solutions!
